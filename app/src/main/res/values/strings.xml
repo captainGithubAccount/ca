@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Smart SPRi</string>
+    <string name="start_sample">Start assessment</string>
+    <string name="end_sample">Pause assessment</string>
+    <string name="interval_task">Scheduled task</string>
+    <string name="interval_image_save">Image saving interval</string>
+    <string name="sampling_interval">Sampling frequency</string>
+    <string name="add_sampling_area">Add sampling area </string>
+    <string name="operate_parameter_error">You can set this parameter only after sampling is complete</string>
+    <string name="image_save_done">Save successfully</string>
+    <string name="add_sample_area_first">Adding a sample area</string>
+    <string name="add_max_areas_forbidden">Adding a maximum of 10 sampling areas</string>
+</resources>

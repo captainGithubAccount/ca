@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    >
+
+    <com.you.company.rtcpgvd.MatrixView
+        android:id="@+id/capture_region"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/circle_background"
+        app:fcShapeType="2"
+        app:fcScaleDotRadius="6dp"
+        app:fcLineWidth="2dp"
+        app:showControlFrame="true"
+        app:fcRotateDotRadius="12dp"
+        />
+
+</LinearLayout>
