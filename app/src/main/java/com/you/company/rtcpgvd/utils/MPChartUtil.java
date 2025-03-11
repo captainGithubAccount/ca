@@ -16,6 +16,10 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,12 +106,27 @@ public class MPChartUtil {
         xAxis.setDrawAxisLine(true);//是否绘制x轴的直线
         xAxis.setDrawGridLines(true);//是否画网格线
         xAxis.setGridColor(Color.GRAY);
+
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);// 设置x轴数据的位置
+        xAxis.setGranularity(1f);// 设置x轴数据的位置
+//        xAxis.setLabelCount(dataSet.getEntryCount(), true); // 根据数据点数量设置标签数量
+
         xAxis.setTextSize(3);//设置轴标签字体大小
         xAxis.setTextColor(Color.parseColor("#999999"));//设置轴标签字体的颜色
-//        xAxis.setValueFormatter(new ValueFormatter() {
-//            @Override
-//            public String getFormattedValue(float value) {
+        xAxis.setValueFormatter(new ValueFormatter() {
+            private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            @Override
+            public String getFormattedValue(float value) {
+
+                Duration duration = Duration.ofSeconds((long) value/1000);
+                LocalTime time = LocalTime.MIDNIGHT.plus(duration); // 从午夜开始加上持续时间
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                String formattedTime = time.format(formatter); // 格式化时间
+                return formattedTime;
+
+                // 假设value是毫秒时间戳
+//                return dateFormat.format(new Date((long) value));
+
 //                String time = value +"";
 //                Log.i("capture", "format" +value);
 //                if(time.length() >=6) {
@@ -121,8 +140,8 @@ public class MPChartUtil {
 //                    return strBuilder.toString();
 //                }
 //                return value +"";
-//            }
-//        });
+            }
+        });
         xAxis.setAvoidFirstLastClipping(true);//图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
         //设置竖线的显示样式为虚线  lineLength控制虚线段的长度  spaceLength控制线之间的空间
         xAxis.enableGridDashedLine(10f, 10f, 0f);

@@ -38,8 +38,10 @@ import com.you.company.rtcpgvd.utils.ExcelManager;
 import com.you.company.rtcpgvd.utils.SqImageSaver;
 import com.you.company.rtcpgvd.utils.ToastUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,14 +60,14 @@ public class CameraHolder {
     private Handler cameraHandler;
     private Size previewSize;
     private ImageReader imageReader;
-    private List<CaptureTask> captureTasks;
+    private List<CaptureTask> captureTasks;//对应三个采样视图，并不是折线图的点
     private ArrayList<Surface> mCaptureSurfaces;
 
     private CaptureRequest.Builder mPreviewBuilder;
 
     private boolean splashLight = true;
 
-    private boolean startCapture;
+    private boolean startCapture = false;
 
     private int frequencey = 1;
 
@@ -360,13 +362,14 @@ public class CameraHolder {
                 imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
                     @Override
                     public void onImageAvailable(ImageReader reader) {
-                        Image image = reader.acquireLatestImage();
+                        //由于添加到了预览的request，每获取到一帧图像都会回调这个方法
+                        Image image = reader.acquireLatestImage();//这里获取到的image对象就是图片数据，次数可以对图片进行操作
                         if(image == null) {
                             return;
                         }
                         if(!startCapture) {
                             Log.i("capture","not launch");
-                            image.close();
+                            image.close();//记得释放
                             return;
                         }
 
@@ -385,7 +388,7 @@ public class CameraHolder {
                         }
                         if(nextMillis == 0) {
                             nextMillis = System.currentTimeMillis();
-                            firstTime = nextMillis / 1000;
+                            firstTime = nextMillis;
                             Log.i("capture","record first millis: "+ nextMillis);
                         } else {
                             //加入当前时间戳还没到就继续等待
@@ -406,12 +409,20 @@ public class CameraHolder {
                         if(captureTasks.size() > 0) {
                             Log.i("capture","collect gray value");
                             Log.i("capture","captureTasks size: " + captureTasks.size());
-                            Long tempTime = System.currentTimeMillis() / 1000;
+//
+//                            Long currentTime = System.currentTimeMillis();
+//                            Long timeDiff = System.currentTimeMillis() + 1000;
+
+                            Long tempTime = System.currentTimeMillis();
                             Log.i("timeDiff","tempTime: "+tempTime);
                             Log.i("timeDiff","currentTime: " + firstTime);
-                            int timeDiff = (int) (tempTime - firstTime + 1);
+                            long timeDiff = (tempTime - firstTime /*+ 1000*/);
                             Log.i("timeDiff","timeDiff: "+ timeDiff);
+
+
                             for (CaptureTask captureTask : getCaptureTasks()) {
+
+//                                captureTask.setTime(currentTime);
 
                                 captureTask.setTime(timeDiff);
                                 captureTask.collectGrayValue(bitmap);
@@ -446,6 +457,14 @@ public class CameraHolder {
             Log.i("capture","camera close");
         }
     };
+
+    private String formartTime(Long timeStamp){
+//        Long timeStamp = System.currentTimeMillis();  //获取当前时间戳
+        SimpleDateFormat sdf=new SimpleDateFormat("HH:mm:ss");
+        String sd = sdf.format(new Date(Long.parseLong(String.valueOf(timeStamp))));      // 时间戳转换成时间
+        System.out.println("格式化结果：" + sd);
+        return sd;
+    }
 
     private CameraCaptureSession currentSession;
 
@@ -543,7 +562,10 @@ public class CameraHolder {
             if(mPreviewBuilder == null) {
                 mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             }
+            //CameraDevice配置的一个捕获会话，调用此类的方法可以进行预览、拍照
+
             currentSession.setRepeatingRequest(mPreviewBuilder.build(), null, cameraHandler);
+            //该方法创建一个无限捕捉图像的请求，可以用于预览，方法需要一个request，可传入回调函数
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -552,6 +574,9 @@ public class CameraHolder {
     private CameraCaptureSession.StateCallback sessionCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession session) {
+            if(cameraDevice == null){
+                return;
+            }
             currentSession = session;
             updatePreview();
         }
@@ -576,10 +601,22 @@ public class CameraHolder {
 
     public void switchAssessment() {
         if (startCapture) {
+            //点击暂停按钮
             startCapture = false;
             DataManager.Instance().stopSync();
             ExcelManager.getInstance().stopSync();
+
+
+            for (CaptureTask tempTask : captureTasks) {
+                tempTask.getPoints().clear();
+//                List<Entry> tempPoints = new ArrayList<>();
+//                tempPoints.addAll(tempTask.getPoints());
+//                MPChartUtil.setChartData(lineChartView, tempPoints, LineDataSet.Mode.CUBIC_BEZIER, chartId);
+
+            }
+//            MPChartUtil.initChart()
         } else {
+            //点击开始按钮
             generateUUID(); //生成一个uuid标识这次采集
             startCapture = true;
             DataManager.Instance().startSync();

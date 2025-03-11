@@ -39,7 +39,7 @@ public class CaptureTask {
 
     private List<Float> mGrays = new ArrayList<>();
 
-    private int time;
+    private long time;
 
     private CaptureTask(Handler handler,Region region){
         second = 0;
@@ -66,45 +66,46 @@ public class CaptureTask {
         return task;
     }
 
-    public void setTime(int time){
+    public void setTime(long time){
         this.time = time;
     }
 
-    public void collectGrayValue(Bitmap bitmap){
-        Log.i("capture","start calculate gray value");
+    public void collectGrayValue(Bitmap bitmap) {
+        Log.i("capture", "start calculate gray value");
         float averageGrayVal;
-                synchronized (CaptureTask.class) {
-                    try {
-                        float grayVal;
-                        if(mRegion.getRegionType() == RegionType.CIRCLE) {
-                            grayVal = ImageUtils.calculateGrayValueCircle(bitmap,mRegion.getStartX(),mRegion.getStartY(),mRegion.getEndX(),mRegion.getEndY());
+        synchronized (CaptureTask.class) {
+            try {
+                float grayVal;
+                if (mRegion.getRegionType() == RegionType.CIRCLE) {
+                    grayVal = ImageUtils.calculateGrayValueCircle(bitmap, mRegion.getStartX(), mRegion.getStartY(), mRegion.getEndX(), mRegion.getEndY());
 
-                        }else {
-                            grayVal = ImageUtils.calculateGrayValueRect(bitmap,mRegion.getStartX(),mRegion.getStartY(),mRegion.getEndX(),mRegion.getEndY());
-                        }
-                        mGrays.add(grayVal);
-                        if(mGrays.size() == CameraHolder.getInstance().getFrequencey()) {
-                            float sum = 0;
-                            for (Float mGray : mGrays) {
-                                sum += mGray;
-                            }
-                            averageGrayVal = sum / CameraHolder.getInstance().getFrequencey();
-                            if(getPoints().size() > 15) {
-                                mPointValues.remove(0);
-                            }
-
-                            DataManager.Instance().AddEntity(time+"",mRegion.getMatrixId(),averageGrayVal);
-                            Log.i("capture","save time: "+ time);
-                            addPoints(new Entry(Float.parseFloat(String.valueOf(time)),averageGrayVal));
-                            dispatchMsgShow();
-                            mGrays.clear();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.e("capture",e.getMessage());
-                    }
+                } else {
+                    grayVal = ImageUtils.calculateGrayValueRect(bitmap, mRegion.getStartX(), mRegion.getStartY(), mRegion.getEndX(), mRegion.getEndY());
                 }
+                mGrays.add(grayVal);
+                if (mGrays.size() == CameraHolder.getInstance().getFrequencey()) {
+                    float sum = 0;
+                    for (Float mGray : mGrays) {
+                        sum += mGray;
+                    }
+                    averageGrayVal = sum / CameraHolder.getInstance().getFrequencey();
+                    if (getPoints().size() > 15) {
+                        mPointValues.remove(0);
+                    }
+
+                    DataManager.Instance().AddEntity(time + "", mRegion.getMatrixId(), averageGrayVal);
+                    Log.i("capture", "save time: " + time);
+
+                    addPoints(new Entry(Float.parseFloat(String.valueOf(time)), averageGrayVal));
+                    dispatchMsgShow();
+                    mGrays.clear();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("capture", e.getMessage());
+            }
+        }
 
 
     }

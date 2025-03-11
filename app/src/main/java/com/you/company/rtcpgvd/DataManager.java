@@ -71,16 +71,29 @@ public class DataManager {
     }
 
     public void startSync() {
-        mTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                saveLocal();
-            }
-        }, 1000, 1000);
+        if(mTimer != null){
+            mTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    saveLocal();
+                }
+            }, 1000, 1000);
+        }else{
+            mTimer = new Timer();
+            mTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    saveLocal();
+                }
+            }, 1000, 1000);
+
+        }
+
     }
 
     public void stopSync(){
         mTimer.cancel();
+        mTimer = null;
     }
 
     private void removeEntity(String time){

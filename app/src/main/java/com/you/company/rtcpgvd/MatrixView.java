@@ -1,5 +1,15 @@
 package com.you.company.rtcpgvd;
 
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CLOSE;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CONTROL_5;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CONTROL_6;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CONTROL_7;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_OUTSIDE;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.getDistanceOf2Points;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.getImageRectF;
+import static com.you.company.rtcpgvd.utils.MatrixImageUtils.getTouchMode;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -20,16 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.you.company.rtcpgvd.utils.MatrixImageUtils;
-
-import static android.util.TypedValue.COMPLEX_UNIT_DIP;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CLOSE;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CONTROL_5;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CONTROL_6;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_CONTROL_7;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.TouchMode.TOUCH_OUTSIDE;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.getDistanceOf2Points;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.getImageRectF;
-import static com.you.company.rtcpgvd.utils.MatrixImageUtils.getTouchMode;
 
 public class MatrixView extends AppCompatImageView {
 
@@ -480,8 +480,8 @@ public class MatrixView extends AppCompatImageView {
         Matrix scaleMatrix = new Matrix(mImgMatrix);
         scaleMatrix.postScale(scaleFactorX, scaleFactorY, scaleBaseX, scaleBaseY);
         RectF scaleRectF = getImageRectF(this, scaleMatrix);
-        if (scaleRectF.right - scaleRectF.left < mScaleDotRadius * 6
-                || scaleRectF.bottom - scaleRectF.top < mScaleDotRadius * 6
+        if (scaleRectF.right - scaleRectF.left < mScaleDotRadius * 1
+                || scaleRectF.bottom - scaleRectF.top < mScaleDotRadius * 1
         ) {
             return;
         }

@@ -31,7 +31,6 @@ import com.you.company.rtcpgvd.lib.OnSpinnerItemSelectedListener;
 import com.you.company.rtcpgvd.utils.AppUtils;
 import com.you.company.rtcpgvd.utils.DateTimeUtil;
 import com.you.company.rtcpgvd.utils.DialogUtil;
-import com.you.company.rtcpgvd.utils.ExcelUtils;
 import com.you.company.rtcpgvd.utils.MPChartUtil;
 import com.you.company.rtcpgvd.utils.MatrixImageUtils;
 import com.you.company.rtcpgvd.utils.ToastUtils;
@@ -96,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
         mSpinner = findViewById(R.id.capture_frequency);
         mImageSaveSpinner = findViewById(R.id.capture_interval_image);
         lineChartView = findViewById(R.id.line_chart_list);
+        lineChartView.setTouchEnabled(true);
+        lineChartView.setDragXEnabled(false);
         mSeekBar = findViewById(R.id.camera_focus_ajust);
         MPChartUtil.initChart(lineChartView,true,true,false);
         //chartUtil.init(lineChartView);
@@ -231,6 +232,10 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
         });
     }
 
+    private void reset(){
+
+    }
+
 
     private void initListener(){
         sampleBtn.setOnClickListener(new View.OnClickListener(){
@@ -247,10 +252,12 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                 }
 
                 if(!CameraHolder.getInstance().getAssessmentStatus()) {
+                    //点击开始  开始+重置
                     sampleBtn.setText(getResources().getString(R.string.end_sample));
                     CameraHolder.getInstance().switchAssessment();
                 } else {
-
+                    //点击暂停
+                    reset();
                     if(timer != null) {
                         timer.cancel();
                         timer = null;
