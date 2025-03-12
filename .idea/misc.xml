@@ -5,8 +5,12 @@
       <map>
         <entry key="app/src/main/res/drawable/circle_background.xml" value="0.2553626149131767" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1962962962962963" />
+        <entry key="app/src/main/res/layout/activity_main_hor.xml" value="0.125" />
+        <entry key="app/src/main/res/layout/activity_main_ver.xml" value="0.2" />
         <entry key="app/src/main/res/layout/layout_capture_section_circle.xml" value="0.21910112359550563" />
+        <entry key="app/src/main/res/layout/layout_capture_section_rect.xml" value="0.30462962962962964" />
         <entry key="app/src/main/res/layout/layout_chart.xml" value="0.15462962962962962" />
+        <entry key="app/src/main/res/layout/layout_line_chart.xml" value="0.1824074074074074" />
       </map>
     </option>
   </component>

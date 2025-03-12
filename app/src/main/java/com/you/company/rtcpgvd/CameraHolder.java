@@ -2,6 +2,7 @@ package com.you.company.rtcpgvd;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -156,14 +157,23 @@ public class CameraHolder {
             e.printStackTrace();
         }
     }
-    public void initTexture(TextureView textureView) {
+    public void initTexture(TextureView textureView, Activity activity) {
         mTextureView = textureView;
 
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+
+
                 Matrix matrix = new Matrix();
-                matrix.postRotate(270, mTextureView.getWidth()/2, mTextureView.getHeight()/2);
+                if(rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270){
+                    matrix.postRotate(90 * (rotation - 2), mTextureView.getWidth()/2, mTextureView.getHeight()/2);
+
+                }else if(rotation == Surface.ROTATION_180){
+                    matrix.postRotate(180, mTextureView.getWidth()/2, mTextureView.getHeight()/2);
+                }
+
                 matrix.postScale(1f * mTextureView.getWidth()/mTextureView.getHeight(),
                         1f * mTextureView.getHeight() / mTextureView.getWidth(),mTextureView.getWidth()/2,
                         mTextureView.getHeight()/2);
@@ -314,11 +324,13 @@ public class CameraHolder {
         return false;
     }
 
+
+
     public void openCamera() {
         try {
             if(mCameraId!=null) {
                 if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                    //
+                    //camera2自适应横竖屏
                     cameraManager.openCamera(mCameraId, callback, cameraHandler);
                 }
             } else {
@@ -350,6 +362,7 @@ public class CameraHolder {
                 mCaptureSurfaces.clear();
             }
             SurfaceTexture texture = mTextureView.getSurfaceTexture();
+
             texture.setDefaultBufferSize(mTextureView.getWidth(), mTextureView.getHeight());
             Surface previewSurface = new Surface(texture);
             try {

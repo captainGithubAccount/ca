@@ -2,6 +2,7 @@ package com.you.company.rtcpgvd;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.os.Bundle;
@@ -11,8 +12,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -20,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -57,7 +61,12 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
 
     private ImageAvailableHandler mainHandler;
 
+
+
+//    ------------
     private List<Region> regions = new ArrayList<>();
+    LinkedList<String> dataset;
+//    --------------
 
     private ImageView region_circle,region_rect;
 
@@ -76,16 +85,109 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
 
     private CustomSeekBar mSeekBar;
 
-    LinkedList<String> dataset;
-
     private Button sampleBtn;
 
     private CountDownTimer timer;
 
+//旋转后恢复的数据
+    String buttonText = "";
+    int spinnerIndex = 0;
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Configuration mConfiguration = this.getResources().getConfiguration();
+        int ori = mConfiguration.orientation;
+        if (ori == Configuration.ORIENTATION_LANDSCAPE) {
+            //Horizontal screen
+            List<CaptureTask> tasks = CameraHolder.getInstance().getCaptureTasks();
+            int i = tasks.size();
+            setContentView(R.layout.activity_main);
+            initView();
+            resotreView();
+            initTexture();
+        } else if (ori == Configuration.ORIENTATION_PORTRAIT) {
+            List<CaptureTask> tasks = CameraHolder.getInstance().getCaptureTasks();
+            int i = tasks.size();
+            //Vertical screen
+            setContentView(R.layout.activity_main_ver);
+            initView();
+            resotreView();
+            initTexture();
+        }
+    }
+
+    private void resotreView(){
+        restoreSeekbar();//重置就好了，不用保存当前进度
+        restoreSpinner();
+        restoreButtonText();
+        restoreMatrixViews();
+    }
+
+    private void restoreSpinner(){
+        mSpinner.setSelectedIndex(spinnerIndex);
+    }
+
+    private void restoreButtonText(){
+        sampleBtn.setText(buttonText);
+
+    }
+    private void restoreSeekbar(){}
+
+    private void restoreMatrixViews(){
+//        mRootLayout.removeAllViews(); 注意，这里不能这样移除，否则会把camera采样控件也一带移除了
+        for(int j = 0; j < matrixViewList.size(); j++){
+//            ViewGroup matrixParent = (ViewGroup)matrixViewList.get(j).getParent();
+//            if(matrixParent != null){
+//                matrixParent.removeAllViews();
+//            }
+//            ViewGroup matrixVG = (ViewGroup)LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_capture_section_rect,mRootLayout,false);
+//            matrixVG.removeAllViews();
+//            matrixVG.addView(matrixViewList.get(j));
+//            mRootLayout.addView(matrixVG);
+//            matrixViewList.get(j).registerImageLocationListener(MainActivity.this);
+//            matrixViewList.get(j).registerImageCloseListener(MainActivity.this);
+
+
+            ViewGroup matrixParent = (ViewGroup)matrixViewList.get(j).getParent();
+            //matrixParent.getParent() 销毁的原来的mRootLayout
+            if(matrixParent.getParent() != null){
+                ((ViewGroup)matrixParent.getParent()).removeAllViews();
+            }
+
+//            if(matrixParent != null){
+//                matrixParent.removeAllViews();
+//                matrixParent.addView(matrixViewList.get(j));
+//            }
+            mRootLayout.addView(matrixParent);//新的mRootLayout
+            matrixViewList.get(j).registerImageLocationListener(MainActivity.this);
+            matrixViewList.get(j).registerImageCloseListener(MainActivity.this);
+//            matrixViewList.set(j, newMatrixViewAfterRotate);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        int rotation = this.getResources().getConfiguration().orientation;
+
+        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
+            //竖屏
+            setContentView(R.layout.activity_main_ver);
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+
+        } else if (Surface.ROTATION_180 == rotation) {
+            //横屏
+            setContentView(R.layout.activity_main);
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        }
+
+        initView();
+    }
+
+    private void initView(){
         previewView = findViewById(R.id.previewView);
         mRootLayout = findViewById(R.id.main_content);
         sampleBtn = findViewById(R.id.lauch_sample);
@@ -102,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
         //chartUtil.init(lineChartView);
         initListener();
 
+        initSeekBar();
+
         interval_btn = findViewById(R.id.interval_btn);
 
         interval_btn.setOnClickListener(new View.OnClickListener() {
@@ -117,10 +221,10 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                     public void onTimeDone(String str) {
                         interval_btn.setText(str);
                         interval_btn.setEnabled(false);
-                       // CameraHolder.getInstance().switchAssessment();
+                        // CameraHolder.getInstance().switchAssessment();
                         Long date =  DateTimeUtil.parseTimeToMilliseconds(str);
 
-                         timer = new CountDownTimer(date,1000) {
+                        timer = new CountDownTimer(date,1000) {
                             @Override
                             public void onTick(long millisUntilFinished) {
                                 String timeUntilFinish = DateTimeUtil.formatMillisecondsToTime(millisUntilFinished);
@@ -131,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                             public void onFinish() {
                                 CameraHolder.getInstance().switchAssessment();
                                 sampleBtn.setText(getResources().getString(R.string.start_sample));
+                                buttonText = getResources().getString(R.string.start_sample);
                                 interval_btn.setText(getResources().getString(R.string.interval_task));
                                 DialogUtil.showTimeCompletDialog(MainActivity.this.getSupportFragmentManager());
                                 interval_btn.setEnabled(true);
@@ -174,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
         mSpinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
+                spinnerIndex = position;
                 Log.i("capture","position: " + position);
                 if(CameraHolder.getInstance().getAssessmentStatus()) {
                     ToastUtils.showCloseToast(getResources().getString(R.string.operate_parameter_error));
@@ -204,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                     View section = LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_capture_section_circle,mRootLayout,false);
                     MatrixView matrixView  = section.findViewById(R.id.capture_region);
                     mRootLayout.addView(section);
+                    matrixViewList.add(matrixView);
                     matrixView.registerImageLocationListener(MainActivity.this);
                     matrixView.registerImageCloseListener(MainActivity.this);
                 } else {
@@ -223,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                     View section = LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_capture_section_rect,mRootLayout,false);
                     MatrixView matrixView  = section.findViewById(R.id.capture_region);
                     mRootLayout.addView(section);
+                    matrixViewList.add(matrixView);
                     matrixView.registerImageLocationListener(MainActivity.this);
                     matrixView.registerImageCloseListener(MainActivity.this);
                 } else {
@@ -232,9 +340,11 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
         });
     }
 
-    private void reset(){
 
-    }
+    private ArrayList<MatrixView> matrixViewList = new ArrayList();
+
+
+
 
 
     private void initListener(){
@@ -254,10 +364,11 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                 if(!CameraHolder.getInstance().getAssessmentStatus()) {
                     //点击开始  开始+重置
                     sampleBtn.setText(getResources().getString(R.string.end_sample));
+                    buttonText = getResources().getString(R.string.end_sample);
                     CameraHolder.getInstance().switchAssessment();
                 } else {
                     //点击暂停
-                    reset();
+//                    reset();
                     if(timer != null) {
                         timer.cancel();
                         timer = null;
@@ -265,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
                         interval_btn.setText(getResources().getString(R.string.interval_task));
                     }
                     sampleBtn.setText(getResources().getString(R.string.start_sample));
+                    buttonText = getResources().getString(R.string.start_sample);
                     CameraHolder.getInstance().switchAssessment();
                 }
 
@@ -275,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
 
     int seconds = 0;
 
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -283,7 +396,6 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
             ToastUtils.show(this,"未找到可存储的设备");
         }
         //camera初始化
-        initSeekBar();
         CameraHolder.getInstance().init(this);
         CameraHolder.getInstance().setCameraAvailableListener(new CameraHolder.CameraAvailable() {
             @Override
@@ -303,22 +415,25 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
         }
     }
 
+    private void initTexture(){
+        if(hasCamera) {
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                hasPermission = true;
+                CameraHolder.getInstance().initTexture(previewView, this);
+
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},1);
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
        // mSpinner.setSelectedIndex(0);
         mainHandler = new ImageAvailableHandler(Looper.getMainLooper(),this);
 
-        if(hasCamera) {
-            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                hasPermission = true;
-                CameraHolder.getInstance().initTexture(previewView);
-
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},1);
-            }
-        }
-
+        initTexture();
 
 
     }
@@ -329,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     hasPermission = true;
-                    CameraHolder.getInstance().initTexture(previewView);
+                    CameraHolder.getInstance().initTexture(previewView, this);
 
                 } else {
                     Log.d( TAG, "onRequestPermissionsResult: You Denied the Permission");
@@ -339,6 +454,12 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
             default:
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Nullable
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return super.onRetainCustomNonConfigurationInstance();
     }
 
     @Override
@@ -452,7 +573,15 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
 
     @Override
     public void onImageClose(int childId) {
+
+
         MatrixImageUtils.recycleCaptureId(childId);
         CameraHolder.getInstance().removeCaptureTask(childId);
+
+        for(int i =0 ; i < matrixViewList.size(); i++){
+            if(matrixViewList.get(i).getImageMatrixId() == childId){
+                matrixViewList.remove(i);
+            }
+        }
     }
 }

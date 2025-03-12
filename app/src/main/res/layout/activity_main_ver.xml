@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:id="@+id/main_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/section_config"
+        >
+
+        <TextureView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.you.company.rtcpgvd.view.CustomSeekBar
+            android:id="@+id/camera_focus_ajust"
+            android:layout_width="25dp"
+            android:layout_height="129dp"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="12dp"
+            />
+
+        <com.you.company.rtcpgvd.ToggleImageView
+            android:id="@+id/icon_splash"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            app:ctrlStatus="true"
+            app:ctrlImgOn="@mipmap/splash_on"
+            app:ctrlImgOff="@mipmap/splash_off"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/section_config"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="#000000"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:elevation="4dp"
+            app:cardCornerRadius="4dp"
+            >
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:background="#000000"
+                >
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:background="#011B32"
+                    android:padding="2dp"
+                    >
+
+                    <TextView
+                        android:id="@+id/add_sample_region"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/add_sampling_area"
+                        android:maxLines="1"
+                        android:textSize="12sp"
+                        android:textColor="#839AAB"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        />
+
+                    <ImageView
+                        android:id="@+id/region_circle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#03457E"
+                        android:layout_marginTop="8dp"
+                        android:scaleType="fitXY"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintTop_toBottomOf="@+id/add_sample_region"
+                        app:layout_constraintRight_toLeftOf="@+id/region_rect"
+                        android:layout_marginRight="8dp"
+                        app:layout_constraintHorizontal_chainStyle="spread"
+                        android:src="@mipmap/icon_circle" />
+
+                    <ImageView
+                        android:id="@+id/region_rect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#03457E"
+                        android:scaleType="fitXY"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintStart_toEndOf="@+id/region_circle"
+                        app:layout_constraintTop_toTopOf="@+id/region_circle"
+                        android:layout_marginLeft="8dp"
+                        android:src="@mipmap/icon_rect" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginLeft="16dp"
+                        android:background="#011B32"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:textSize="10sp"
+                            android:maxLines="1"
+                            android:text="@string/sampling_interval"
+                            android:textColor="#839AAB" />
+
+                        <com.you.company.rtcpgvd.lib.NiceSpinner
+                            android:id="@+id/capture_frequency"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1.36"
+                            android:spinnerMode="dropdown"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginRight="4dp"
+                            app:dropDownListPaddingBottom="59dp"
+                            android:textSize="14sp"
+                            app:arrowTint="@color/white"
+                            app:textTint="@color/white"
+                            android:textColor="@color/white"
+                            app:backgroundSelector="@drawable/spinner_background" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginLeft="16dp"
+                        android:background="#011B32"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:gravity="center_vertical"
+                        >
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:textSize="10sp"
+                            android:maxLines="1"
+                            android:text="@string/interval_image_save"
+                            android:textColor="#839AAB" />
+
+                        <com.you.company.rtcpgvd.lib.NiceSpinner
+                            android:id="@+id/capture_interval_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1.36"
+                            android:spinnerMode="dropdown"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginRight="4dp"
+                            app:dropDownListPaddingBottom="59dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/white"
+                            app:arrowTint="@color/white"
+                            android:text="00:00"
+                            app:textTint="@color/white"
+                            app:backgroundSelector="@drawable/spinner_background"
+                            />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3.5"
+            android:elevation="4dp"
+            app:cardCornerRadius="4dp">
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/line_chart_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/color_chart_background"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:padding="4dp"
+            >
+
+            <Button
+                android:id="@+id/lauch_sample"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:text="@string/start_sample"
+                android:layout_marginRight="4dp"
+                android:layout_marginLeft="4dp"
+                android:textSize="10sp"
+                android:background="@drawable/sample_btn_background"
+                />
+
+
+            <Button
+                android:id="@+id/interval_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textSize="10sp"
+                android:enabled="true"
+                android:text="@string/interval_task"
+                android:textColor="@color/white"
+                android:layout_marginRight="4dp"
+                android:background="@drawable/interval_btn_selector"
+                />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
