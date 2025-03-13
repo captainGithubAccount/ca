@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        CameraHolder.getInstance().clearTasks();
         Configuration mConfiguration = this.getResources().getConfiguration();
         int ori = mConfiguration.orientation;
         if (ori == Configuration.ORIENTATION_LANDSCAPE) {
@@ -170,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements MatrixView.ImageC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int rotation = this.getResources().getConfiguration().orientation;
+        buttonText = getResources().getString(R.string.start_sample);
 
         if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
             //竖屏

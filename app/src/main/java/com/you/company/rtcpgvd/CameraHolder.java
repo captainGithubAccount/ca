@@ -612,21 +612,25 @@ public class CameraHolder {
         return startCapture;
     }
 
+    public void clearTasks(){
+        for (CaptureTask tempTask : captureTasks) {
+            tempTask.getPoints().clear();
+//                List<Entry> tempPoints = new ArrayList<>();
+//                tempPoints.addAll(tempTask.getPoints());
+//                MPChartUtil.setChartData(lineChartView, tempPoints, LineDataSet.Mode.CUBIC_BEZIER, chartId);
+
+        }
+    }
+
     public void switchAssessment() {
         if (startCapture) {
             //点击暂停按钮
             startCapture = false;
             DataManager.Instance().stopSync();
             ExcelManager.getInstance().stopSync();
+            clearTasks();
 
 
-            for (CaptureTask tempTask : captureTasks) {
-                tempTask.getPoints().clear();
-//                List<Entry> tempPoints = new ArrayList<>();
-//                tempPoints.addAll(tempTask.getPoints());
-//                MPChartUtil.setChartData(lineChartView, tempPoints, LineDataSet.Mode.CUBIC_BEZIER, chartId);
-
-            }
 //            MPChartUtil.initChart()
         } else {
             //点击开始按钮
